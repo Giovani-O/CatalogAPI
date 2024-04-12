@@ -1,5 +1,5 @@
 namespace CatalogAPI.Models;
-class Product
+public class Product
 {
   public int Id { get; set; }
   public string? Name { get; set; }
@@ -8,4 +8,6 @@ class Product
   public string? ImageUrl { get; set; }
   public float Stored { get; set; }
   public DateTime RegisterDate { get; set; }
+  public int CategoryId { get; set; } // Defines foreign key
+  public Category? Category { get; set; } // Navigation property, Product will have a category
 }
