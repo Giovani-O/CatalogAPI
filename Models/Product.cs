@@ -24,7 +24,7 @@ public class Product
   [StringLength(300)]
   public string? ImageUrl { get; set; }
 
-  public float Stored { get; set; }
+  public float Stock { get; set; }
 
   public DateTime RegisterDate { get; set; }
 

@@ -77,7 +77,7 @@ namespace CatalogAPI.Migrations
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<float>("Stored")
+                    b.Property<float>("Stock")
                         .HasColumnType("float");
 
                     b.HasKey("Id");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatalogAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240415135829_CorrectProductsTable")]
-    partial class CorrectProductsTable
+    [Migration("20240415162009_RestartMigrations")]
+    partial class RestartMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -80,7 +80,7 @@ namespace CatalogAPI.Migrations
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<float>("Stored")
+                    b.Property<float>("Stock")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
