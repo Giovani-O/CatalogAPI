@@ -3,6 +3,8 @@ using CatalogAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+namespace CatalogAPI.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class ProductsController : ControllerBase

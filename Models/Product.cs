@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CatalogAPI.Models;
 [Table("Products")]
@@ -30,5 +31,6 @@ public class Product
 
   public int CategoryId { get; set; } // Defines foreign key
 
+  [JsonIgnore]
   public Category? Category { get; set; } // Navigation property, Product will have a category
 }

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CatalogAPI.Models;
 [Table("Categories")]
@@ -22,5 +23,6 @@ public class Category
   [StringLength(300)]
   public string? ImageUrl { get; set; }
 
+  [JsonIgnore]
   public ICollection<Product>? Products { get; set; } // Navigation property, Category will contain a collection of products
 }
