@@ -19,7 +19,9 @@ public class ProductsController : ControllerBase
   [HttpGet]
   public ActionResult<IEnumerable<Product>> Get()
   {
-    var products = _context.Products?.ToList();
+    // Queries are usually tracked in the context, this can disrupt performance
+    // To prevent that disruption, we can use AsNoTracking() on read only queries.
+    var products = _context.Products?.AsNoTracking().ToList();
     if (products is null) return NotFound(
       "Não é possível encontrar produtos. Tente novamente mais tarde."
     );
@@ -29,7 +31,7 @@ public class ProductsController : ControllerBase
   [HttpGet("{id:int}", Name = "GetProduct")]
   public ActionResult<Product> Get(int id)
   {
-    var product = _context.Products?.FirstOrDefault(x => x.Id == id);
+    var product = _context.Products?.AsNoTracking().FirstOrDefault(x => x.Id == id);
     if (product is null) return NotFound("Produto não encontrado");
     return product;
   }
@@ -65,7 +67,7 @@ public class ProductsController : ControllerBase
   {
     if (id <= 0) return BadRequest("");
 
-    var product = _context.Products?.FirstOrDefault(x => x.Id == id);
+    var product = _context.Products?.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
     if (product is null) return NotFound("Produto não encontrado");
 

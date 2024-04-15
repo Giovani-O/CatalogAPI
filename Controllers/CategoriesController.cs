@@ -26,13 +26,15 @@ public class CategoriesController : ControllerBase
   [HttpGet]
   public ActionResult<IEnumerable<Category>> Get()
   {
-    return _context.Categories.ToList();
+    // Queries are usually tracked in the context, this can disrupt performance
+    // To prevent that disruption, we can use AsNoTracking() on read only queries.
+    return _context.Categories.AsNoTracking().ToList();
   }
 
   [HttpGet("{id:int}", Name = "GetCategory")]
   public ActionResult<Category> Get(int id)
   {
-    var category = _context.Categories?.FirstOrDefault(x => x.Id == id);
+    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
     if (category is null) return NotFound("Categoria não encontrada");
     return Ok(category);
   }
@@ -68,7 +70,7 @@ public class CategoriesController : ControllerBase
   {
     if (id <= 0) return BadRequest("");
 
-    var category = _context.Categories?.FirstOrDefault(x => x.Id == id);
+    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
     if (category is null) return NotFound("Categoria não encontrada");
 
