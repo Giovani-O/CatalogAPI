@@ -20,63 +20,105 @@ public class CategoriesController : ControllerBase
   [HttpGet("products")]
   public ActionResult<IEnumerable<Category>> GetCategoriesAndProducts()
   {
-    return _context.Categories.Include(p => p.Products).ToList();
+    try
+    {
+      return _context.Categories.Include(p => p.Products).ToList();
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 
   [HttpGet]
   public ActionResult<IEnumerable<Category>> Get()
   {
-    // Queries are usually tracked in the context, this can disrupt performance
-    // To prevent that disruption, we can use AsNoTracking() on read only queries.
-    return _context.Categories.AsNoTracking().ToList();
+    try
+    {
+      // Queries are usually tracked in the context, this can disrupt performance
+      // To prevent that disruption, we can use AsNoTracking() on read only queries.
+      return _context.Categories.AsNoTracking().ToList();
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 
   [HttpGet("{id:int}", Name = "GetCategory")]
   public ActionResult<Category> Get(int id)
   {
-    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
-    if (category is null) return NotFound("Categoria não encontrada");
-    return Ok(category);
+    try
+    {
+      var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+      if (category is null) return NotFound("Categoria não encontrada");
+      return Ok(category);
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 
   [HttpPost]
   public ActionResult Post(Category category)
   {
-    if (category is null) return BadRequest("");
+    try
+    {
+      if (category is null) return BadRequest("");
 
-    _context?.Categories?.Add(category);
-    _context?.SaveChanges();
+      _context?.Categories?.Add(category);
+      _context?.SaveChanges();
 
-    // Returns the newly created category and the HTTP Code 201
-    return new CreatedAtRouteResult(
-      "GetCategory", new { id = category.Id }, category
-    );
+      // Returns the newly created category and the HTTP Code 201
+      return new CreatedAtRouteResult(
+        "GetCategory", new { id = category.Id }, category
+      );
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 
   [HttpPut("{id:int}")]
   public ActionResult Put(int id, Category category)
   {
-    if (id != category.Id) return BadRequest("");
+    try
+    {
+      if (id != category.Id) return BadRequest("");
 
-    // Marks the entity as modified and save the changes
-    _context.Entry(category).State = EntityState.Modified;
-    _context.SaveChanges();
+      // Marks the entity as modified and save the changes
+      _context.Entry(category).State = EntityState.Modified;
+      _context.SaveChanges();
 
-    return Ok(category);
+      return Ok(category);
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 
   [HttpDelete("{id:int}")]
   public ActionResult Delete(int id)
   {
-    if (id <= 0) return BadRequest("");
+    try
+    {
+      if (id <= 0) return BadRequest("");
 
-    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+      var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
-    if (category is null) return NotFound("Categoria não encontrada");
+      if (category is null) return NotFound("Categoria não encontrada");
 
-    _context.Categories?.Remove(category);
-    _context.SaveChanges();
+      _context.Categories?.Remove(category);
+      _context.SaveChanges();
 
-    return Ok();
+      return Ok();
+    }
+    catch (Exception)
+    {
+      return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema na solicitação.");
+    }
   }
 }
