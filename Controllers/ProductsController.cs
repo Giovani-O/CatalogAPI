@@ -17,13 +17,13 @@ public class ProductsController : ControllerBase
   }
 
   [HttpGet]
-  public ActionResult<IEnumerable<Product>> Get()
+  public async Task<ActionResult<IEnumerable<Product>>> Get()
   {
     try
     {
       // Queries are usually tracked in the context, this can disrupt performance
       // To prevent that disruption, we can use AsNoTracking() on read only queries.
-      var products = _context.Products?.AsNoTracking().ToList();
+      var products = await _context.Products.AsNoTracking().ToListAsync();
       if (products is null) return NotFound(
         "Não é possível encontrar produtos. Tente novamente mais tarde."
       );
@@ -35,12 +35,12 @@ public class ProductsController : ControllerBase
     }
   }
 
-  [HttpGet("{id:int}", Name = "GetProduct")]
-  public ActionResult<Product> Get(int id)
+  [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
+  public async Task<ActionResult<Product>> Get(int id)
   {
     try
     {
-      var product = _context.Products?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+      var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
       if (product is null) return NotFound("Produto não encontrado");
       return product;
     }
