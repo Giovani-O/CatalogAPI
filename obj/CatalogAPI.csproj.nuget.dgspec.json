@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\github\\CatalogAPI\\CatalogAPI.csproj": {}
+    "C:\\github\\CatalogAPI\\CatalogAPI.csproj": {}
   },
   "projects": {
-    "c:\\github\\CatalogAPI\\CatalogAPI.csproj": {
+    "C:\\github\\CatalogAPI\\CatalogAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\github\\CatalogAPI\\CatalogAPI.csproj",
+        "projectUniqueName": "C:\\github\\CatalogAPI\\CatalogAPI.csproj",
         "projectName": "CatalogAPI",
-        "projectPath": "c:\\github\\CatalogAPI\\CatalogAPI.csproj",
+        "projectPath": "C:\\github\\CatalogAPI\\CatalogAPI.csproj",
         "packagesPath": "C:\\Users\\giova\\.nuget\\packages\\",
-        "outputPath": "c:\\github\\CatalogAPI\\obj\\",
+        "outputPath": "C:\\github\\CatalogAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\giova\\AppData\\Roaming\\NuGet\\NuGet.Config"

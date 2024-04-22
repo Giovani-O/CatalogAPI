@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using CatalogAPI.Context;
+using CatalogAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,12 +30,28 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ConfigureExceptionHandler(); // Custom middleware
 }
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
+// Creation of a custom middleware
+// app.Use(async (context, next) => {
+//     // Add code before request
+//     await next(context);
+//     // Add code after request
+// });
+
 app.MapControllers();
+
+// Creation of a final middleware
+// app.Run(async (context) =>
+// {
+//     await context.Response.WriteAsync("Middleware final");
+// });
 
 app.Run();

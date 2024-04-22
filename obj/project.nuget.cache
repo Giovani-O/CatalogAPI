@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FQRvcIbhRKBaILb+AhpZSrByQw7m9AQ48h7Rups2Y5L3uh/yv7YLZgs54ZLCwaCHSogQJ1NqumRjz18OrslWdg==",
+  "dgSpecHash": "d4O29nWQeMIPwd9FB1oh4YiFIp7kf4P7Rb8yTUWF5exWYH0CiN+ji5UGvocetwr0P+RXemfEiWAbt1IzlpyyBg==",
   "success": true,
-  "projectFilePath": "c:\\github\\CatalogAPI\\CatalogAPI.csproj",
+  "projectFilePath": "C:\\github\\CatalogAPI\\CatalogAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\giova\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\giova\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
