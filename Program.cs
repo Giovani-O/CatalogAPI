@@ -15,12 +15,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
+var valor1 = builder.Configuration["Key1"];
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection, ServerVersion.AutoDetect(mySqlConnection)));
 
+// Create the application
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Middleware setup
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

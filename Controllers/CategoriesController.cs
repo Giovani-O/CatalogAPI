@@ -10,11 +10,28 @@ namespace CatalogAPI.Controllers;
 public class CategoriesController : ControllerBase
 {
   private readonly AppDbContext _context;
-
-  // Constructor
-  public CategoriesController(AppDbContext context)
+  private readonly IConfiguration _configuration;
+  public CategoriesController(AppDbContext context, IConfiguration configuration)
   {
     _context = context;
+    _configuration = configuration;
+  }
+
+  // Constructor
+  // public CategoriesController(AppDbContext context)
+  // {
+  //   _context = context;
+  // }
+
+  [HttpGet("ReadConfigFile")]
+  public string GetValues()
+  {
+    var key1 = _configuration["key1"];
+    var key2 = _configuration["key2"];
+
+    var section1 = _configuration["section1:key2"];
+
+    return $"Key 1: {key1} Key 2: {key2} Section: {section1}";
   }
 
   [HttpGet("products")]
