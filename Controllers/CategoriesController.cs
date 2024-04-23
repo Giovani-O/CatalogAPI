@@ -1,4 +1,5 @@
 using CatalogAPI.Context;
+using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,7 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpGet]
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
   public ActionResult<IEnumerable<Category>> Get()
   {
     try

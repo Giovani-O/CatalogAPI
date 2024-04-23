@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using CatalogAPI.Context;
+using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,8 @@ var valor1 = builder.Configuration["Key1"];
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection, ServerVersion.AutoDetect(mySqlConnection)));
+
+builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter service
 
 // Create the application
 var app = builder.Build();
