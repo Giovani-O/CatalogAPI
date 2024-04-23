@@ -12,10 +12,16 @@ public class CategoriesController : ControllerBase
 {
   private readonly AppDbContext _context;
   private readonly IConfiguration _configuration;
-  public CategoriesController(AppDbContext context, IConfiguration configuration)
+  private readonly ILogger? _logger;
+  public CategoriesController(
+       AppDbContext context, 
+       IConfiguration configuration, 
+       ILogger<CategoriesController> logger
+  )
   {
     _context = context;
     _configuration = configuration;
+    _logger = logger;
   }
 
   // Constructor
@@ -40,7 +46,10 @@ public class CategoriesController : ControllerBase
   {
     try
     {
-      return _context.Categories.Include(p => p.Products).ToList();
+            _logger.LogInformation("%%% /categories/products %%%");
+            _logger.LogInformation("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
+            return _context.Categories.Include(p => p.Products).ToList();
     }
     catch (Exception)
     {
@@ -69,7 +78,10 @@ public class CategoriesController : ControllerBase
   {
     try
     {
-      var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+            _logger.LogInformation($"$$$ /categories/{id} $$$");
+            _logger.LogInformation($"$$$ $$$$$$$$$$$$$$$$ $$$");
+
+            var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
       if (category is null) return NotFound("Categoria não encontrada");
       return Ok(category);
     }
