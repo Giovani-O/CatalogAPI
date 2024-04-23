@@ -11,9 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 // Ignoring cyclic references that happen when using navigation properties
-builder.Services.AddControllers().AddJsonOptions(
-    options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles
-);
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add(typeof(ApiExceptionFilter)); // Using a global filter
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
