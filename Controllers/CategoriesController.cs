@@ -25,7 +25,8 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpGet("ReadConfigFile")]
-  public string GetValues()
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public string GetValues()
   {
     var key1 = _configuration["key1"];
     var key2 = _configuration["key2"];
@@ -36,11 +37,9 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpGet("products")]
-  public ActionResult<IEnumerable<Category>> GetCategoriesAndProducts()
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult<IEnumerable<Category>> GetCategoriesAndProducts()
   {
-    _logger.LogInformation("%%% /categories/products %%%");
-    _logger.LogInformation("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-
     return _context.Categories.Include(p => p.Products).ToList();
   }
 
@@ -54,11 +53,9 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpGet("{id:int}", Name = "GetCategory")]
-  public ActionResult<Category> Get(int id)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult<Category> Get(int id)
   {
-
-    _logger.LogInformation($"$$$ /categories/{id} $$$");
-    _logger.LogInformation($"$$$ $$$$$$$$$$$$$$$$ $$$");
 
     var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
@@ -68,7 +65,8 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpPost]
-  public ActionResult Post(Category category)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Post(Category category)
   {
     if (category is null) return BadRequest("");
 
@@ -82,7 +80,8 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpPut("{id:int}")]
-  public ActionResult Put(int id, Category category)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Put(int id, Category category)
   {
     if (id != category.Id) return BadRequest("");
 
@@ -94,7 +93,8 @@ public class CategoriesController : ControllerBase
   }
 
   [HttpDelete("{id:int}")]
-  public ActionResult Delete(int id)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Delete(int id)
   {
     if (id <= 0) return BadRequest("");
 

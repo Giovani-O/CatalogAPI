@@ -1,4 +1,5 @@
 using CatalogAPI.Context;
+using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,8 @@ public class ProductsController : ControllerBase
   }
 
   [HttpGet]
-  public async Task<ActionResult<IEnumerable<Product>>> Get()
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public async Task<ActionResult<IEnumerable<Product>>> Get()
   {
     
     // Queries are usually tracked in the context, this can disrupt performance
@@ -30,7 +32,8 @@ public class ProductsController : ControllerBase
   }
 
   [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-  public async Task<ActionResult<Product>> Get(int id)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public async Task<ActionResult<Product>> Get(int id)
   {
     var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
     if (product is null) return NotFound("Produto não encontrado");
@@ -38,7 +41,8 @@ public class ProductsController : ControllerBase
   }
 
   [HttpPost]
-  public ActionResult Post(Product product)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Post(Product product)
   {
     if (product is null) return BadRequest("");
 
@@ -52,7 +56,8 @@ public class ProductsController : ControllerBase
   }
 
   [HttpPut("{id:int}")]
-  public ActionResult Put(int id, Product product)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Put(int id, Product product)
   {
     if (id != product.Id) return BadRequest("");
 
@@ -64,7 +69,8 @@ public class ProductsController : ControllerBase
   }
 
   [HttpDelete("{id:int}")]
-  public ActionResult Delete(int id)
+  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult Delete(int id)
   {
     if (id <= 0) return BadRequest("");
 
