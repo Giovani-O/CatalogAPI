@@ -1,6 +1,6 @@
-using CatalogAPI.Context;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
+using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,101 +10,109 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 public class CategoriesController : ControllerBase
 {
-  private readonly AppDbContext _context;
-  private readonly IConfiguration _configuration;
-  private readonly ILogger? _logger;
-  public CategoriesController(
-       AppDbContext context, 
-       IConfiguration configuration, 
-       ILogger<CategoriesController> logger
-  )
-  {
-    _context = context;
-    _configuration = configuration;
-    _logger = logger;
-  }
+    private readonly ICategoryRepository _repository;
+    //private readonly IConfiguration _configuration;
+    private readonly ILogger? _logger;
+    public CategoriesController(
+         ICategoryRepository repository,
+         //IConfiguration configuration, 
+         ILogger<CategoriesController> logger
+    )
+    {
+        _repository = repository;
+        //_configuration = configuration;
+        _logger = logger;
+    }
 
-  [HttpGet("ReadConfigFile")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public string GetValues()
-  {
-    var key1 = _configuration["key1"];
-    var key2 = _configuration["key2"];
+    //[HttpGet("ReadConfigFile")]
+    //[ServiceFilter(typeof(ApiLoggingFilter))]
+    //  public string GetValues()
+    //{
+    //  var key1 = _configuration["key1"];
+    //  var key2 = _configuration["key2"];
 
-    var section1 = _configuration["section1:key2"];
+    //  var section1 = _configuration["section1:key2"];
 
-    return $"Key 1: {key1} Key 2: {key2} Section: {section1}";
-  }
+    //  return $"Key 1: {key1} Key 2: {key2} Section: {section1}";
+    //}
 
-  [HttpGet("products")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<IEnumerable<Category>> GetCategoriesAndProducts()
-  {
-    return _context.Categories.Include(p => p.Products).ToList();
-  }
+    //[HttpGet("products")]
+    //[ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    //  public ActionResult<IEnumerable<Category>> GetCategoriesAndProducts()
+    //{
+    //  return _context.Categories.Include(p => p.Products).ToList();
+    //}
 
-  [HttpGet]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-  public ActionResult<IEnumerable<Category>> Get()
-  {
-    // Queries are usually tracked in the context, this can disrupt performance
-    // To prevent that disruption, we can use AsNoTracking() on read only queries.
-    return _context.Categories.AsNoTracking().ToList();
-  }
+    [HttpGet]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult<IEnumerable<Category>> Get()
+    {
+        // Queries are usually tracked in the context, this can disrupt performance
+        // To prevent that disruption, we can use AsNoTracking() on read only queries.
+        var categories = _repository.GetCategories();
+        return Ok(categories);
+    }
 
-  [HttpGet("{id:int}", Name = "GetCategory")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [HttpGet("{id:int}", Name = "GetCategory")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<Category> Get(int id)
-  {
+    {
+        var category = _repository.GetCategory(id);
 
-    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        if (category is null)
+        {
+            _logger?.LogWarning($"Dados inválidos");
+            return BadRequest("Dados inválidos");
+        }
 
-    if (category is null) return NotFound("Categoria não encontrada");
-    return Ok(category);
+        return Ok(category);
+    }
 
-  }
-
-  [HttpPost]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [HttpPost]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Post(Category category)
-  {
-    if (category is null) return BadRequest("");
+    {
+        if (category is null)
+        {
+            _logger?.LogWarning($"Dados inválidos");
+            return BadRequest("Dados inválidos");
+        }
 
-    _context?.Categories?.Add(category);
-    _context?.SaveChanges();
+        var createdCategory = _repository.Create(category);
 
-    // Returns the newly created category and the HTTP Code 201
-    return new CreatedAtRouteResult(
-    "GetCategory", new { id = category.Id }, category
-    );
-  }
+        // Returns the newly created category and the HTTP Code 201
+        return new CreatedAtRouteResult(
+            "GetCategory", new { id = createdCategory.Id }, category
+        );
+    }
 
-  [HttpPut("{id:int}")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [HttpPut("{id:int}")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Put(int id, Category category)
-  {
-    if (id != category.Id) return BadRequest("");
+    {
+        if (category is null || id != category.Id)
+        {
+            _logger?.LogWarning($"Dados inválidos");
+            return BadRequest("Dados inválidos");
+        }
 
-    // Marks the entity as modified and save the changes
-    _context.Entry(category).State = EntityState.Modified;
-    _context.SaveChanges();
+        _repository.Update(category);
+        return Ok(category);
+    }
 
-    return Ok(category);
-  }
-
-  [HttpDelete("{id:int}")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [HttpDelete("{id:int}")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Delete(int id)
-  {
-    if (id <= 0) return BadRequest("");
+    {
+        var category = _repository.GetCategory(id);
 
-    var category = _context.Categories?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        if (category == null)
+        {
+            _logger?.LogWarning($"Dados inválidos");
+            return BadRequest("Dados inválidos");
+        }
 
-    if (category is null) return NotFound("Categoria não encontrada");
-
-    _context.Categories?.Remove(category);
-    _context.SaveChanges();
-
-    return Ok();
-  }
+        var deletedCategory = _repository.Delete(id);
+        return Ok(deletedCategory);
+    }
 }

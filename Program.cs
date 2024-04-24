@@ -3,6 +3,7 @@ using CatalogAPI.Context;
 using CatalogAPI.Filters;
 using CatalogAPI.Logging;
 using CatalogAPI.Models;
+using CatalogAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection, ServerVersion.AutoDetect(mySqlConnection)));
 
 builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter service
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration 
 { 
