@@ -2,7 +2,6 @@ using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogAPI.Controllers;
 
@@ -64,6 +63,8 @@ public class CategoriesController : ControllerBase
             _logger?.LogWarning($"Dados inválidos");
             return BadRequest("Dados inválidos");
         }
+
+        if (category.Id == 0) return NotFound("Categoria não encontrada");
 
         return Ok(category);
     }

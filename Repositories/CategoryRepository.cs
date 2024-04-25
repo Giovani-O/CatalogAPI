@@ -31,7 +31,7 @@ namespace CatalogAPI.Repositories
 
         public Category Create(Category category)
         {
-            if (category is null || _context.Categories is null) 
+            if (category is null || _context.Categories is null)
                 throw new InvalidOperationException("Ocorreu um problema ao criar a categoria!");
 
             _context.Categories.Add(category);
@@ -58,7 +58,7 @@ namespace CatalogAPI.Repositories
 
             var category = _context.Categories.Find(id);
 
-            if (category is null) 
+            if (category is null)
                 throw new ArgumentNullException(nameof(category));
 
             _context.Categories.Remove(category);

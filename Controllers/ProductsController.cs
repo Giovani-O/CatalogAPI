@@ -1,8 +1,7 @@
-using CatalogAPI.Context;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
+using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogAPI.Controllers;
 
@@ -10,77 +9,82 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 public class ProductsController : ControllerBase
 {
-  private readonly AppDbContext _context;
+    private readonly IProductRepository _repository;
+    public ProductsController(IProductRepository repository)
+    {
+        _repository = repository;
+    }
 
-  public ProductsController(AppDbContext context)
-  {
-    _context = context;
-  }
+    [HttpGet]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult<IEnumerable<Product>> Get()
+    {
+        var products = _repository.GetProducts().ToList();
 
-  [HttpGet]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public async Task<ActionResult<IEnumerable<Product>>> Get()
-  {
-    
-    // Queries are usually tracked in the context, this can disrupt performance
-    // To prevent that disruption, we can use AsNoTracking() on read only queries.
-    var products = await _context.Products.AsNoTracking().ToListAsync();
-    if (products is null) return NotFound(
-    "Não é possível encontrar produtos. Tente novamente mais tarde."
-    );
-    return products;
-  }
+        if (products is null) return NotFound();
 
-  [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public async Task<ActionResult<Product>> Get(int id)
-  {
-    var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-    if (product is null) return NotFound("Produto não encontrado");
-    return product;
-  }
+        return Ok(products);
+    }
 
-  [HttpPost]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    public ActionResult<Product> Get(int id)
+    {
+        var product = _repository.GetProduct(id);
+
+        if (product is null) return NotFound("Produto não encontrado");
+
+        return Ok(product);
+    }
+
+    [HttpPost]
+    //[ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Post(Product product)
-  {
-    if (product is null) return BadRequest("");
+    {
+        if (product is null) return BadRequest("");
 
-    _context?.Products?.Add(product);
-    _context?.SaveChanges();
+        var newProduct = _repository.Create(product);
 
-    // Returns the newly created product and the HTTP Code 201
-    return new CreatedAtRouteResult(
-    "GetProduct", new { id = product.Id }, product
-    );
-  }
+        return new CreatedAtRouteResult(
+            "GetProduct", new { id = newProduct.Id }, newProduct);
 
-  [HttpPut("{id:int}")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    }
+
+    [HttpPut("{id:int}")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Put(int id, Product product)
-  {
-    if (id != product.Id) return BadRequest("");
+    {
+        if (product is null)
+            throw new InvalidOperationException("Produto é null");
 
-    // Marks the entity as modified and save the changes
-    _context.Entry(product).State = EntityState.Modified;
-    _context.SaveChanges();
+        bool updatedProduct = _repository.Update(product);
 
-    return Ok(product);
-  }
+        if (updatedProduct)
+        {
+            return Ok(product);
+        }
+        else
+        {
+            return StatusCode(500, $"Falha ao atualizar o produto {id}");
+        }
 
-  [HttpDelete("{id:int}")]
-  [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    }
+
+    [HttpDelete("{id:int}")]
+    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Delete(int id)
-  {
-    if (id <= 0) return BadRequest("");
+    {
+        if (id <= 0) return BadRequest("");
 
-    var product = _context.Products?.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        bool deletedProduct = _repository.Delete(id);
 
-    if (product is null) return NotFound("Produto não encontrado");
-
-    _context.Products?.Remove(product);
-    _context.SaveChanges();
-
-    return Ok();
-  }
+        if (deletedProduct)
+        {
+            return Ok($"O produto {id} foi excluído");
+        }
+        else
+        {
+            return StatusCode(500, $"Falha ao excluir o produto {id}");
+        }
+    }
 }

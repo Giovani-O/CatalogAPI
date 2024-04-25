@@ -27,7 +27,7 @@ namespace CatalogAPI.Logging
         {
             string message = $"{logLevel.ToString()}: {eventId.Id} - {formatter(state, exception)}";
 
-            WriteTextInFile(message); 
+            WriteTextInFile(message);
         }
 
         private void WriteTextInFile(string message)

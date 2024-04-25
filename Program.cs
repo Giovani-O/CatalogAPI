@@ -1,10 +1,10 @@
-using System.Text.Json.Serialization;
 using CatalogAPI.Context;
 using CatalogAPI.Filters;
 using CatalogAPI.Logging;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 // Ignoring cyclic references that happen when using navigation properties
-builder.Services.AddControllers(options => 
+builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(ApiExceptionFilter)); // Using a global filter
 }).AddJsonOptions(options =>
@@ -32,9 +32,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter service
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
+builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Never forget to register the repository -_-
 
-builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration 
-{ 
+builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
+{
     LogLevel = LogLevel.Information
 }));
 
