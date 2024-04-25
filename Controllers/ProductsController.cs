@@ -9,17 +9,30 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly IProductRepository _repository;
-    public ProductsController(IProductRepository repository)
+    //private readonly IRepository<Product> _repository;
+    private readonly IProductRepository _productRepository;
+    public ProductsController(/*IRepository<Product> repository,*/ IProductRepository productRepository)
     {
-        _repository = repository;
+        //_productRepository = repository;
+        _productRepository = productRepository;
+    }
+
+    [HttpGet("products/{id}")]
+    public ActionResult<IEnumerable<Product>> GetProductsByCategory(int id)
+    {
+        var products = _productRepository.GetProductsByCategory(id);
+
+        if (products is null)
+            return NotFound();
+
+        return Ok(products);
     }
 
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<IEnumerable<Product>> Get()
     {
-        var products = _repository.GetProducts().ToList();
+        var products = _productRepository.GetAll();
 
         if (products is null) return NotFound();
 
@@ -30,7 +43,7 @@ public class ProductsController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<Product> Get(int id)
     {
-        var product = _repository.GetProduct(id);
+        var product = _productRepository.Get(p => p.Id == id);
 
         if (product is null) return NotFound("Produto não encontrado");
 
@@ -43,7 +56,7 @@ public class ProductsController : ControllerBase
     {
         if (product is null) return BadRequest("");
 
-        var newProduct = _repository.Create(product);
+        var newProduct = _productRepository.Create(product);
 
         return new CreatedAtRouteResult(
             "GetProduct", new { id = newProduct.Id }, newProduct);
@@ -57,17 +70,9 @@ public class ProductsController : ControllerBase
         if (product is null)
             throw new InvalidOperationException("Produto é null");
 
-        bool updatedProduct = _repository.Update(product);
+        var updatedProduct = _productRepository.Update(product);
 
-        if (updatedProduct)
-        {
-            return Ok(product);
-        }
-        else
-        {
-            return StatusCode(500, $"Falha ao atualizar o produto {id}");
-        }
-
+        return Ok(updatedProduct);
     }
 
     [HttpDelete("{id:int}")]
@@ -76,15 +81,14 @@ public class ProductsController : ControllerBase
     {
         if (id <= 0) return BadRequest("");
 
-        bool deletedProduct = _repository.Delete(id);
+        var product = _productRepository.Get(p => p.Id == id);
 
-        if (deletedProduct)
+        if (product is null)
         {
-            return Ok($"O produto {id} foi excluído");
+            return NotFound("Produto não encontrado");
         }
-        else
-        {
-            return StatusCode(500, $"Falha ao excluir o produto {id}");
-        }
+
+        var deletedProduct = _productRepository.Delete(product);
+        return Ok(deletedProduct);
     }
 }

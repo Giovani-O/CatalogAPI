@@ -31,6 +31,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter service
 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
 builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Never forget to register the repository -_-
 

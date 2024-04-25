@@ -9,7 +9,7 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 public class CategoriesController : ControllerBase
 {
-    private readonly ICategoryRepository _repository;
+    private readonly IRepository<Category> _repository;
     //private readonly IConfiguration _configuration;
     private readonly ILogger? _logger;
     public CategoriesController(
@@ -48,7 +48,7 @@ public class CategoriesController : ControllerBase
     {
         // Queries are usually tracked in the context, this can disrupt performance
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
-        var categories = _repository.GetCategories();
+        var categories = _repository.GetAll();
         return Ok(categories);
     }
 
@@ -56,7 +56,7 @@ public class CategoriesController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<Category> Get(int id)
     {
-        var category = _repository.GetCategory(id);
+        var category = _repository.Get(c => c.Id == id);
 
         if (category is null)
         {
@@ -105,7 +105,7 @@ public class CategoriesController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Delete(int id)
     {
-        var category = _repository.GetCategory(id);
+        var category = _repository.Get(c => c.Id == id);
 
         if (category == null)
         {
@@ -113,7 +113,7 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        var deletedCategory = _repository.Delete(id);
+        var deletedCategory = _repository.Delete(category);
         return Ok(deletedCategory);
     }
 }
