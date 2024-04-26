@@ -34,6 +34,7 @@ builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter servic
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
 builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Never forget to register the repository -_-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register unit of work
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
 {

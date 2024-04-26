@@ -1,4 +1,5 @@
 ﻿using CatalogAPI.Context;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CatalogAPI.Repositories
@@ -15,7 +16,7 @@ namespace CatalogAPI.Repositories
         public IEnumerable<T> GetAll()
         {
             // Nesse contexto, Set<T>() serve para acessar uma coleção do tipo T
-            return _context.Set<T>().ToList();
+            return _context.Set<T>().AsNoTracking().ToList();
         }
 
         public T? Get(Expression<Func<T, bool>> predicate)
@@ -27,7 +28,7 @@ namespace CatalogAPI.Repositories
         public T Create(T entity)
         {
             _context.Set<T>().Add(entity);
-            _context.SaveChanges();
+            //_context.SaveChanges();
             return entity;
         }
 
@@ -38,7 +39,7 @@ namespace CatalogAPI.Repositories
 
             // Esta opção vai atualizar TODAS as colunas do registro no banco 
             _context.Set<T>().Update(entity);
-            _context.SaveChanges();
+            //_context.SaveChanges();
             return entity;
 
 
@@ -47,7 +48,7 @@ namespace CatalogAPI.Repositories
         public T Delete(T entity)
         {
             _context.Set<T>().Remove(entity);
-            _context.SaveChanges();
+            //_context.SaveChanges();
             return entity;
         }
     }

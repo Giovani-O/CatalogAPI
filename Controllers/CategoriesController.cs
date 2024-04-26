@@ -9,19 +9,20 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 public class CategoriesController : ControllerBase
 {
-    private readonly IRepository<Category> _repository;
+    private readonly IUnitOfWork _unitOfWork;
     //private readonly IConfiguration _configuration;
     private readonly ILogger? _logger;
     public CategoriesController(
-         ICategoryRepository repository,
+         IUnitOfWork unitOfWork,
          //IConfiguration configuration, 
          ILogger<CategoriesController> logger
     )
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
         //_configuration = configuration;
         _logger = logger;
     }
+
 
     //[HttpGet("ReadConfigFile")]
     //[ServiceFilter(typeof(ApiLoggingFilter))]
@@ -48,7 +49,7 @@ public class CategoriesController : ControllerBase
     {
         // Queries are usually tracked in the context, this can disrupt performance
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
-        var categories = _repository.GetAll();
+        var categories = _unitOfWork.CategoryRepository.GetAll();
         return Ok(categories);
     }
 
@@ -56,7 +57,7 @@ public class CategoriesController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<Category> Get(int id)
     {
-        var category = _repository.Get(c => c.Id == id);
+        var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
 
         if (category is null)
         {
@@ -79,7 +80,8 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        var createdCategory = _repository.Create(category);
+        var createdCategory = _unitOfWork.CategoryRepository.Create(category);
+        _unitOfWork.Commit();
 
         // Returns the newly created category and the HTTP Code 201
         return new CreatedAtRouteResult(
@@ -97,7 +99,8 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        _repository.Update(category);
+        _unitOfWork.CategoryRepository.Update(category);
+        _unitOfWork.Commit();
         return Ok(category);
     }
 
@@ -105,7 +108,7 @@ public class CategoriesController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult Delete(int id)
     {
-        var category = _repository.Get(c => c.Id == id);
+        var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
 
         if (category == null)
         {
@@ -113,7 +116,8 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        var deletedCategory = _repository.Delete(category);
+        var deletedCategory = _unitOfWork.CategoryRepository.Delete(category);
+        _unitOfWork.Commit();
         return Ok(deletedCategory);
     }
 }

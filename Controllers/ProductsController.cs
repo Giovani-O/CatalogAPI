@@ -10,17 +10,17 @@ namespace CatalogAPI.Controllers;
 public class ProductsController : ControllerBase
 {
     //private readonly IRepository<Product> _repository;
-    private readonly IProductRepository _productRepository;
-    public ProductsController(/*IRepository<Product> repository,*/ IProductRepository productRepository)
+    private readonly IUnitOfWork _unitOfWork;
+    public ProductsController(/*IRepository<Product> repository,*/ IUnitOfWork unitOfWork)
     {
         //_productRepository = repository;
-        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpGet("products/{id}")]
     public ActionResult<IEnumerable<Product>> GetProductsByCategory(int id)
     {
-        var products = _productRepository.GetProductsByCategory(id);
+        var products = _unitOfWork.ProductRepository.GetProductsByCategory(id);
 
         if (products is null)
             return NotFound();
@@ -32,7 +32,7 @@ public class ProductsController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<IEnumerable<Product>> Get()
     {
-        var products = _productRepository.GetAll();
+        var products = _unitOfWork.ProductRepository.GetAll();
 
         if (products is null) return NotFound();
 
@@ -43,7 +43,7 @@ public class ProductsController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public ActionResult<Product> Get(int id)
     {
-        var product = _productRepository.Get(p => p.Id == id);
+        var product = _unitOfWork.ProductRepository.Get(p => p.Id == id);
 
         if (product is null) return NotFound("Produto não encontrado");
 
@@ -56,7 +56,8 @@ public class ProductsController : ControllerBase
     {
         if (product is null) return BadRequest("");
 
-        var newProduct = _productRepository.Create(product);
+        var newProduct = _unitOfWork.ProductRepository.Create(product);
+        _unitOfWork.Commit();
 
         return new CreatedAtRouteResult(
             "GetProduct", new { id = newProduct.Id }, newProduct);
@@ -70,7 +71,8 @@ public class ProductsController : ControllerBase
         if (product is null)
             throw new InvalidOperationException("Produto é null");
 
-        var updatedProduct = _productRepository.Update(product);
+        var updatedProduct = _unitOfWork.ProductRepository.Update(product);
+        _unitOfWork.Commit();
 
         return Ok(updatedProduct);
     }
@@ -81,14 +83,15 @@ public class ProductsController : ControllerBase
     {
         if (id <= 0) return BadRequest("");
 
-        var product = _productRepository.Get(p => p.Id == id);
+        var product = _unitOfWork.ProductRepository.Get(p => p.Id == id);
 
         if (product is null)
         {
             return NotFound("Produto não encontrado");
         }
 
-        var deletedProduct = _productRepository.Delete(product);
+        var deletedProduct = _unitOfWork.ProductRepository.Delete(product);
+        _unitOfWork.Commit();
         return Ok(deletedProduct);
     }
 }
