@@ -1,3 +1,4 @@
+using CatalogAPI.DTOs;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
@@ -45,17 +46,31 @@ public class CategoriesController : ControllerBase
 
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<IEnumerable<Category>> Get()
+    public ActionResult<IEnumerable<CategoryDTO>> Get()
     {
         // Queries are usually tracked in the context, this can disrupt performance
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
         var categories = _unitOfWork.CategoryRepository.GetAll();
-        return Ok(categories);
+
+        var categoriesDto = new List<CategoryDTO>();
+        foreach (var category in categories) 
+        {
+            var categoryDto = new CategoryDTO()
+            {
+                Id = category.Id,
+                Name = category.Name,
+                ImageUrl = category.ImageUrl,
+            };
+
+            categoriesDto.Add(categoryDto);
+        }
+
+        return Ok(categoriesDto);
     }
 
     [HttpGet("{id:int}", Name = "GetCategory")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<Category> Get(int id)
+    public ActionResult<CategoryDTO> Get(int id)
     {
         var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
 
@@ -67,46 +82,82 @@ public class CategoriesController : ControllerBase
 
         if (category.Id == 0) return NotFound("Categoria não encontrada");
 
-        return Ok(category);
+        var categoryDto = new CategoryDTO()
+        {
+            Id = category.Id,
+            Name = category.Name,
+            ImageUrl = category.ImageUrl,
+        };
+
+        return Ok(categoryDto);
     }
 
     [HttpPost]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult Post(Category category)
+    public ActionResult<CategoryDTO> Post(CategoryDTO categoryDto)
     {
-        if (category is null)
+        if (categoryDto is null)
         {
             _logger?.LogWarning($"Dados inválidos");
             return BadRequest("Dados inválidos");
         }
 
-        var createdCategory = _unitOfWork.CategoryRepository.Create(category);
+        var newCategory = new Category()
+        {
+            Id = categoryDto.Id,
+            Name = categoryDto.Name,
+            ImageUrl = categoryDto.ImageUrl,
+        };
+
+        var createdCategory = _unitOfWork.CategoryRepository.Create(newCategory);
         _unitOfWork.Commit();
+
+        var newCategoryDto = new CategoryDTO()
+        {
+            Id = createdCategory.Id,
+            Name = createdCategory.Name,
+            ImageUrl = createdCategory.ImageUrl,
+        };
 
         // Returns the newly created category and the HTTP Code 201
         return new CreatedAtRouteResult(
-            "GetCategory", new { id = createdCategory.Id }, category
+            "GetCategory", new { id = newCategoryDto.Id }, newCategoryDto
         );
     }
 
     [HttpPut("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult Put(int id, Category category)
+    public ActionResult<CategoryDTO> Put(int id, CategoryDTO categoryDto)
     {
-        if (category is null || id != category.Id)
+        if (categoryDto is null || id != categoryDto.Id)
         {
             _logger?.LogWarning($"Dados inválidos");
             return BadRequest("Dados inválidos");
         }
 
-        _unitOfWork.CategoryRepository.Update(category);
+        var updatedCategory = new Category()
+        {
+            Id = categoryDto.Id,
+            Name = categoryDto.Name,
+            ImageUrl = categoryDto.ImageUrl,
+        };
+
+        _unitOfWork.CategoryRepository.Update(updatedCategory);
         _unitOfWork.Commit();
-        return Ok(category);
+
+        var updatedCategoryDto = new CategoryDTO()
+        {
+            Id = updatedCategory.Id,
+            Name = updatedCategory.Name,
+            ImageUrl = updatedCategory.ImageUrl,
+        };
+
+        return Ok(updatedCategoryDto);
     }
 
     [HttpDelete("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult Delete(int id)
+    public ActionResult<CategoryDTO> Delete(int id)
     {
         var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
 
@@ -118,6 +169,13 @@ public class CategoriesController : ControllerBase
 
         var deletedCategory = _unitOfWork.CategoryRepository.Delete(category);
         _unitOfWork.Commit();
-        return Ok(deletedCategory);
+
+        var deletedCategoryDto = new CategoryDTO()
+        {
+            Id = deletedCategory.Id,
+            Name = deletedCategory.Name,
+            ImageUrl = deletedCategory.ImageUrl,
+        };
+        return Ok(deletedCategoryDto);
     }
 }
