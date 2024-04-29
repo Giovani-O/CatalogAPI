@@ -1,4 +1,5 @@
 using CatalogAPI.DTOs;
+using CatalogAPI.DTOs.Mappings;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
@@ -52,18 +53,8 @@ public class CategoriesController : ControllerBase
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
         var categories = _unitOfWork.CategoryRepository.GetAll();
 
-        var categoriesDto = new List<CategoryDTO>();
-        foreach (var category in categories) 
-        {
-            var categoryDto = new CategoryDTO()
-            {
-                Id = category.Id,
-                Name = category.Name,
-                ImageUrl = category.ImageUrl,
-            };
-
-            categoriesDto.Add(categoryDto);
-        }
+        // Mapper
+        var categoriesDto = categories.ToCategoryDTOList();
 
         return Ok(categoriesDto);
     }
@@ -82,12 +73,8 @@ public class CategoriesController : ControllerBase
 
         if (category.Id == 0) return NotFound("Categoria não encontrada");
 
-        var categoryDto = new CategoryDTO()
-        {
-            Id = category.Id,
-            Name = category.Name,
-            ImageUrl = category.ImageUrl,
-        };
+        // Mapper
+        var categoryDto = category.ToCategoryDTO();
 
         return Ok(categoryDto);
     }
@@ -102,22 +89,14 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        var newCategory = new Category()
-        {
-            Id = categoryDto.Id,
-            Name = categoryDto.Name,
-            ImageUrl = categoryDto.ImageUrl,
-        };
+        // Mapper
+        var newCategory = categoryDto.ToCategory();
 
         var createdCategory = _unitOfWork.CategoryRepository.Create(newCategory);
         _unitOfWork.Commit();
 
-        var newCategoryDto = new CategoryDTO()
-        {
-            Id = createdCategory.Id,
-            Name = createdCategory.Name,
-            ImageUrl = createdCategory.ImageUrl,
-        };
+        // Mapper
+        var newCategoryDto = newCategory.ToCategoryDTO();
 
         // Returns the newly created category and the HTTP Code 201
         return new CreatedAtRouteResult(
@@ -135,22 +114,14 @@ public class CategoriesController : ControllerBase
             return BadRequest("Dados inválidos");
         }
 
-        var updatedCategory = new Category()
-        {
-            Id = categoryDto.Id,
-            Name = categoryDto.Name,
-            ImageUrl = categoryDto.ImageUrl,
-        };
+        // Mapper
+        var updatedCategory = categoryDto.ToCategory();
 
         _unitOfWork.CategoryRepository.Update(updatedCategory);
         _unitOfWork.Commit();
 
-        var updatedCategoryDto = new CategoryDTO()
-        {
-            Id = updatedCategory.Id,
-            Name = updatedCategory.Name,
-            ImageUrl = updatedCategory.ImageUrl,
-        };
+        // Mapper
+        var updatedCategoryDto = updatedCategory.ToCategoryDTO();
 
         return Ok(updatedCategoryDto);
     }
@@ -170,12 +141,9 @@ public class CategoriesController : ControllerBase
         var deletedCategory = _unitOfWork.CategoryRepository.Delete(category);
         _unitOfWork.Commit();
 
-        var deletedCategoryDto = new CategoryDTO()
-        {
-            Id = deletedCategory.Id,
-            Name = deletedCategory.Name,
-            ImageUrl = deletedCategory.ImageUrl,
-        };
+        // Mapper
+        var deletedCategoryDto =deletedCategory.ToCategoryDTO();
+
         return Ok(deletedCategoryDto);
     }
 }
