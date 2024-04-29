@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "PngQ8M6UbGxQvy2JcikCvF8EyUAtUTjLAvD3HtIoSxZ9hM9WfZKcCUhVohU7oxf/rfXkkUNZ6LnHEEtZ9CV6xg==",
+  "dgSpecHash": "G8ZviJK58smeG2iKWa3oyjOqMNmmZsiuEiC4cxFtzoW5luLZwpEjla1HTM5OyutrJgARhNmr7n9ENXG2Zays6Q==",
   "success": true,
   "projectFilePath": "C:\\github\\CatalogAPI\\CatalogAPI.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\giova\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\giova\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\giova\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "C:\\Users\\giova\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.3\\microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
