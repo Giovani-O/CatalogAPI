@@ -13,12 +13,24 @@ namespace CatalogAPI.Repositories
 
         }
 
-        public IEnumerable<Product> GetProducts(ProductsParameters productsParameters)
+        //public IEnumerable<Product> GetProducts(ProductsParameters productsParameters)
+        //{
+        //    return GetAll()
+        //        .OrderBy(p => p.Name)
+        //        .Skip((productsParameters.PageNumber - 1) * productsParameters.PageSize)
+        //        .Take(productsParameters.PageSize).ToList();
+        //}
+
+        public PagedList<Product> GetProducts(ProductsParameters productsParameters)
         {
-            return GetAll()
-                .OrderBy(p => p.Name)
-                .Skip((productsParameters.PageNumber - 1) * productsParameters.PageSize)
-                .Take(productsParameters.PageSize).ToList();
+            var products =  GetAll().OrderBy(p => p.Id).AsQueryable();
+            var orderedProducts = PagedList<Product>.ToPagedList(
+                products, 
+                productsParameters.PageNumber, 
+                productsParameters.PageSize
+            );
+
+            return orderedProducts;
         }
 
         public IEnumerable<Product> GetProductsByCategory(int id)
