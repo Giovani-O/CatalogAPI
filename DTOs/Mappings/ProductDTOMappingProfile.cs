@@ -11,6 +11,8 @@ namespace CatalogAPI.DTOs.Mappings
             // Product to ProductDTO and ProductDTO to Product
             CreateMap<Product, ProductDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<Product, ProductDTOUpdateRequest>().ReverseMap();
+            CreateMap<Product, ProductDTOUpdateResponse>().ReverseMap();
         }
     }
 }

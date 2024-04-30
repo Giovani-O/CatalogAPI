@@ -3,6 +3,7 @@ using CatalogAPI.DTOs;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogAPI.Controllers;
@@ -79,6 +80,30 @@ public class ProductsController : ControllerBase
         return new CreatedAtRouteResult(
             "GetProduct", new { id = newProductDTO.Id }, newProductDTO);
 
+    }
+
+    [HttpPatch("{id}/PartialUpdate")]
+    public ActionResult<ProductDTOUpdateResponse> Patch(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchProductDTO)
+    {
+        if (patchProductDTO is null || id <= 0) 
+            return BadRequest();
+
+        var product = _unitOfWork.ProductRepository.Get(c => c.Id == id);
+
+        if (product is null)
+            return NotFound();
+
+        var productUpdateRequest = _mapper.Map<ProductDTOUpdateRequest>(product);
+
+        patchProductDTO.ApplyTo(productUpdateRequest, ModelState);
+
+        if (!ModelState.IsValid || TryValidateModel(productUpdateRequest))
+            return BadRequest(ModelState);
+
+        _mapper.Map(productUpdateRequest, product);
+        _unitOfWork.Commit();
+
+        return Ok(_mapper.Map<ProductDTOUpdateResponse>(product));
     }
 
     [HttpPut("{id:int}")]
