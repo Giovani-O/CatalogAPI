@@ -2,6 +2,7 @@ using AutoMapper;
 using CatalogAPI.DTOs;
 using CatalogAPI.Filters;
 using CatalogAPI.Models;
+using CatalogAPI.Pagination;
 using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,16 @@ public class ProductsController : ControllerBase
         var productsDTO = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
         return Ok(productsDTO);
+    }
+
+    [HttpGet("pagination")]
+    public ActionResult<IEnumerable<ProductDTO>> Get([FromQuery] ProductsParameters productsParameters) 
+    { 
+        var products = _unitOfWork.ProductRepository.GetProducts(productsParameters);
+
+        var productsDto = _mapper.Map<IEnumerable<ProductDTO>>(products);
+
+        return Ok(productsDto);
     }
 
     [HttpGet]
