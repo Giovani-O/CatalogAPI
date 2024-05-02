@@ -7,6 +7,8 @@ namespace CatalogAPI.Repositories
     {
         // IEnumerable<Product> GetProducts(ProductsParameters productsParameters);
         PagedList<Product> GetProducts(ProductsParameters productsParameters);
+        PagedList<Product> GetProductsFilteredByPrice(ProductsPriceFilter productsPriceFilter);
         IEnumerable<Product> GetProductsByCategory(int id);
+
     }
 }

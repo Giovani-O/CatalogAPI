@@ -33,9 +33,33 @@ namespace CatalogAPI.Repositories
             return orderedProducts;
         }
 
+        public PagedList<Product> GetProductsFilteredByPrice(ProductsPriceFilter productsPriceFilter)
+        {
+            var products = GetAll().AsQueryable();
+
+            if (productsPriceFilter.Price.HasValue && !string.IsNullOrEmpty(productsPriceFilter.PriceCondition))
+            {
+                if (productsPriceFilter.PriceCondition.Equals("maior", StringComparison.OrdinalIgnoreCase))
+                    products = products.Where(p => p.Price > productsPriceFilter.Price.Value).OrderBy(p => p.Price);
+                else if (productsPriceFilter.PriceCondition.Equals("menor", StringComparison.OrdinalIgnoreCase))
+                    products = products.Where(p => p.Price < productsPriceFilter.Price.Value).OrderBy(p => p.Price);
+                else if (productsPriceFilter.PriceCondition.Equals("igual", StringComparison.OrdinalIgnoreCase))
+                    products = products.Where(p => p.Price == productsPriceFilter.Price.Value).OrderBy(p => p.Price);
+            }
+
+            var fiteredProducts = PagedList<Product>.ToPagedList(
+                products, 
+                productsPriceFilter.PageNumber, 
+                productsPriceFilter.PageSize
+            );
+
+            return fiteredProducts;
+        }
+
         public IEnumerable<Product> GetProductsByCategory(int id)
         {
             return GetAll().Where(c => c.CategoryId == id);
         }
+
     }
 }

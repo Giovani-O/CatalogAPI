@@ -39,13 +39,10 @@ public class ProductsController : ControllerBase
         return Ok(productsDTO);
     }
 
-    [HttpGet("pagination")]
-    public ActionResult<IEnumerable<ProductDTO>> Get([FromQuery] ProductsParameters productsParameters) 
-    { 
-        var products = _unitOfWork.ProductRepository.GetProducts(productsParameters);
-
-        var metadata = new 
-        { 
+    private ActionResult<IEnumerable<ProductDTO>> GetProducts(PagedList<Product> products)
+    {
+        var metadata = new
+        {
             products.TotalCount,
             products.PageSize,
             products.CurrentPage,
@@ -59,6 +56,22 @@ public class ProductsController : ControllerBase
         var productsDto = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
         return Ok(productsDto);
+    }
+
+    [HttpGet("pagination")]
+    public ActionResult<IEnumerable<ProductDTO>> Get([FromQuery] ProductsParameters productsParameters) 
+    { 
+        var products = _unitOfWork.ProductRepository.GetProducts(productsParameters);
+
+        return GetProducts(products);
+    }
+
+    [HttpGet("filter/price/pagination")]
+    public ActionResult<IEnumerable<ProductDTO>> GetProductsFilteredByPrice([FromQuery] ProductsPriceFilter productsPriceFilter)
+    {
+        var products = _unitOfWork.ProductRepository.GetProductsFilteredByPrice(productsPriceFilter);
+
+        return GetProducts(products);
     }
 
     [HttpGet]

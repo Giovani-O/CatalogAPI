@@ -61,11 +61,8 @@ public class CategoriesController : ControllerBase
         return Ok(categoriesDto);
     }
 
-    [HttpGet("pagination")]
-    public ActionResult<IEnumerable<CategoryDTO>> Get([FromQuery] CategoriesParameters categoriesParameters)
+    private ActionResult<IEnumerable<CategoryDTO>> GetCategories(PagedList<Category> categories)
     {
-        var categories = _unitOfWork.CategoryRepository.GetCategories(categoriesParameters);
-
         var metadata = new
         {
             categories.TotalCount,
@@ -80,7 +77,23 @@ public class CategoriesController : ControllerBase
 
         var categoriesDTO = categories.ToCategoryDTOList();
 
-        return Ok(categoriesDTO); 
+        return Ok(categoriesDTO);
+    }
+
+    [HttpGet("pagination")]
+    public ActionResult<IEnumerable<CategoryDTO>> Get([FromQuery] CategoriesParameters categoriesParameters)
+    {
+        var categories = _unitOfWork.CategoryRepository.GetCategories(categoriesParameters);
+
+        return GetCategories(categories);
+    }
+
+    [HttpGet("filter/name/pagination")]
+    public ActionResult<IEnumerable<CategoryDTO>> Get([FromQuery] CategoriesNameFilter categoriesNameFilter)
+    {
+        var filteredCategories = _unitOfWork.CategoryRepository.GetCategoriesFilteredByName(categoriesNameFilter);
+
+        return GetCategories(filteredCategories);
     }
 
     [HttpGet("{id:int}", Name = "GetCategory")]
