@@ -7,6 +7,6 @@
         ICategoryRepository CategoryRepository { get; }
 
         // Method to confirm pending operations
-        void Commit();
+        Task CommitAsync();
     }
 }

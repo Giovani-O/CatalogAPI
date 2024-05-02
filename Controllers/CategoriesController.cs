@@ -6,6 +6,7 @@ using CatalogAPI.Pagination;
 using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace CatalogAPI.Controllers;
 
@@ -49,11 +50,11 @@ public class CategoriesController : ControllerBase
 
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<IEnumerable<CategoryDTO>> Get()
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
     {
         // Queries are usually tracked in the context, this can disrupt performance
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
-        var categories = _unitOfWork.CategoryRepository.GetAll();
+        var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
 
         // Mapper
         var categoriesDto = categories.ToCategoryDTOList();
@@ -61,16 +62,16 @@ public class CategoriesController : ControllerBase
         return Ok(categoriesDto);
     }
 
-    private ActionResult<IEnumerable<CategoryDTO>> GetCategories(PagedList<Category> categories)
+    private ActionResult<IEnumerable<CategoryDTO>> GetCategories(IPagedList<Category> categories)
     {
         var metadata = new
         {
-            categories.TotalCount,
+            categories.Count,
             categories.PageSize,
-            categories.CurrentPage,
-            categories.TotalPages,
-            categories.HasNext,
-            categories.HasPrevious,
+            categories.PageCount,
+            categories.TotalItemCount,
+            categories.HasNextPage,
+            categories.HasPreviousPage,
         };
 
         Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
@@ -81,26 +82,26 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("pagination")]
-    public ActionResult<IEnumerable<CategoryDTO>> Get([FromQuery] CategoriesParameters categoriesParameters)
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get([FromQuery] CategoriesParameters categoriesParameters)
     {
-        var categories = _unitOfWork.CategoryRepository.GetCategories(categoriesParameters);
+        var categories = await _unitOfWork.CategoryRepository.GetCategoriesAsync(categoriesParameters);
 
         return GetCategories(categories);
     }
 
     [HttpGet("filter/name/pagination")]
-    public ActionResult<IEnumerable<CategoryDTO>> Get([FromQuery] CategoriesNameFilter categoriesNameFilter)
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get([FromQuery] CategoriesNameFilter categoriesNameFilter)
     {
-        var filteredCategories = _unitOfWork.CategoryRepository.GetCategoriesFilteredByName(categoriesNameFilter);
+        var filteredCategories = await _unitOfWork.CategoryRepository.GetCategoriesFilteredByNameAsync(categoriesNameFilter);
 
         return GetCategories(filteredCategories);
     }
 
     [HttpGet("{id:int}", Name = "GetCategory")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<CategoryDTO> Get(int id)
+    public async Task<ActionResult<CategoryDTO>> Get(int id)
     {
-        var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
+        var category = await _unitOfWork.CategoryRepository.GetAsync(c => c.Id == id);
 
         if (category is null)
         {
@@ -118,7 +119,7 @@ public class CategoriesController : ControllerBase
 
     [HttpPost]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<CategoryDTO> Post(CategoryDTO categoryDto)
+    public async Task<ActionResult<CategoryDTO>> Post(CategoryDTO categoryDto)
     {
         if (categoryDto is null)
         {
@@ -130,7 +131,7 @@ public class CategoriesController : ControllerBase
         var newCategory = categoryDto.ToCategory();
 
         var createdCategory = _unitOfWork.CategoryRepository.Create(newCategory);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         // Mapper
         var newCategoryDto = newCategory.ToCategoryDTO();
@@ -143,7 +144,7 @@ public class CategoriesController : ControllerBase
 
     [HttpPut("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<CategoryDTO> Put(int id, CategoryDTO categoryDto)
+    public async Task<ActionResult<CategoryDTO>> Put(int id, CategoryDTO categoryDto)
     {
         if (categoryDto is null || id != categoryDto.Id)
         {
@@ -155,7 +156,7 @@ public class CategoriesController : ControllerBase
         var updatedCategory = categoryDto.ToCategory();
 
         _unitOfWork.CategoryRepository.Update(updatedCategory);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         // Mapper
         var updatedCategoryDto = updatedCategory.ToCategoryDTO();
@@ -165,9 +166,9 @@ public class CategoriesController : ControllerBase
 
     [HttpDelete("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<CategoryDTO> Delete(int id)
+    public async Task<ActionResult<CategoryDTO>> Delete(int id)
     {
-        var category = _unitOfWork.CategoryRepository.Get(c => c.Id == id);
+        var category = await _unitOfWork.CategoryRepository.GetAsync(c => c.Id == id);
 
         if (category == null)
         {
@@ -176,7 +177,7 @@ public class CategoriesController : ControllerBase
         }
 
         var deletedCategory = _unitOfWork.CategoryRepository.Delete(category);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         // Mapper
         var deletedCategoryDto =deletedCategory.ToCategoryDTO();

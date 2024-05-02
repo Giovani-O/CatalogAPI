@@ -13,16 +13,16 @@ namespace CatalogAPI.Repositories
             _context = context;
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
             // Nesse contexto, Set<T>() serve para acessar uma coleção do tipo T
-            return _context.Set<T>().AsNoTracking().ToList();
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
-        public T? Get(Expression<Func<T, bool>> predicate)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
         {
             // predicate representa a função lambda
-            return _context.Set<T>().FirstOrDefault(predicate);
+            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
         }
 
         public T Create(T entity)

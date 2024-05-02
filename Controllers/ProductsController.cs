@@ -7,6 +7,7 @@ using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace CatalogAPI.Controllers;
 
@@ -26,9 +27,9 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("products/{id}")]
-    public ActionResult<IEnumerable<ProductDTO>> GetProductsByCategory(int id)
+    public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsByCategory(int id)
     {
-        var products = _unitOfWork.ProductRepository.GetProductsByCategory(id);
+        var products = await _unitOfWork.ProductRepository.GetProductsByCategoryAsync(id);
 
         if (products is null)
             return NotFound();
@@ -39,16 +40,16 @@ public class ProductsController : ControllerBase
         return Ok(productsDTO);
     }
 
-    private ActionResult<IEnumerable<ProductDTO>> GetProducts(PagedList<Product> products)
+    private ActionResult<IEnumerable<ProductDTO>> GetProducts(IPagedList<Product> products)
     {
         var metadata = new
         {
-            products.TotalCount,
+            products.Count,
             products.PageSize,
-            products.CurrentPage,
-            products.TotalPages,
-            products.HasNext,
-            products.HasPrevious
+            products.PageCount,
+            products.TotalItemCount,
+            products.HasNextPage,
+            products.HasPreviousPage
         };
 
         Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
@@ -59,26 +60,26 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("pagination")]
-    public ActionResult<IEnumerable<ProductDTO>> Get([FromQuery] ProductsParameters productsParameters) 
+    public async Task<ActionResult<IEnumerable<ProductDTO>>> Get([FromQuery] ProductsParameters productsParameters) 
     { 
-        var products = _unitOfWork.ProductRepository.GetProducts(productsParameters);
+        var products = await _unitOfWork.ProductRepository.GetProductsAsync(productsParameters);
 
         return GetProducts(products);
     }
 
     [HttpGet("filter/price/pagination")]
-    public ActionResult<IEnumerable<ProductDTO>> GetProductsFilteredByPrice([FromQuery] ProductsPriceFilter productsPriceFilter)
+    public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsFilteredByPrice([FromQuery] ProductsPriceFilter productsPriceFilter)
     {
-        var products = _unitOfWork.ProductRepository.GetProductsFilteredByPrice(productsPriceFilter);
+        var products = await _unitOfWork.ProductRepository.GetProductsFilteredByPriceAsync(productsPriceFilter);
 
         return GetProducts(products);
     }
 
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<IEnumerable<ProductDTO>> Get()
+    public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
     {
-        var products = _unitOfWork.ProductRepository.GetAll();
+        var products = await _unitOfWork.ProductRepository.GetAllAsync();
 
         if (products is null) return NotFound();
 
@@ -90,9 +91,9 @@ public class ProductsController : ControllerBase
 
     [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<ProductDTO> Get(int id)
+    public async Task<ActionResult<ProductDTO>> Get(int id)
     {
-        var product = _unitOfWork.ProductRepository.Get(p => p.Id == id);
+        var product = await _unitOfWork.ProductRepository.GetAsync(p => p.Id == id);
 
         if (product is null) return NotFound("Produto não encontrado");
 
@@ -103,14 +104,14 @@ public class ProductsController : ControllerBase
 
     [HttpPost]
     //[ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<ProductDTO> Post(ProductDTO productDto)
+    public async Task<ActionResult<ProductDTO>> Post(ProductDTO productDto)
     {
         if (productDto is null) return BadRequest("");
 
         var product = _mapper.Map<Product>(productDto);
 
         var newProduct = _unitOfWork.ProductRepository.Create(product);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         var newProductDTO = _mapper.Map<ProductDTO>(newProduct);
 
@@ -120,12 +121,12 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPatch("{id}/PartialUpdate")]
-    public ActionResult<ProductDTOUpdateResponse> Patch(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchProductDTO)
+    public async Task<ActionResult<ProductDTOUpdateResponse>> Patch(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchProductDTO)
     {
         if (patchProductDTO is null || id <= 0) 
             return BadRequest();
 
-        var product = _unitOfWork.ProductRepository.Get(c => c.Id == id);
+        var product = await _unitOfWork.ProductRepository.GetAsync(c => c.Id == id);
 
         if (product is null)
             return NotFound();
@@ -138,14 +139,14 @@ public class ProductsController : ControllerBase
             return BadRequest(ModelState);
 
         _mapper.Map(productUpdateRequest, product);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         return Ok(_mapper.Map<ProductDTOUpdateResponse>(product));
     }
 
     [HttpPut("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<ProductDTO> Put(int id, ProductDTO productDto)
+    public async Task<ActionResult<ProductDTO>> Put(int id, ProductDTO productDto)
     {
         if (productDto is null)
             throw new InvalidOperationException("Produto é null");
@@ -153,7 +154,7 @@ public class ProductsController : ControllerBase
         var product = _mapper.Map<Product>(productDto);
 
         var updatedProduct = _unitOfWork.ProductRepository.Update(product);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         var newProductDTO = _mapper.Map<ProductDTO>(updatedProduct);
 
@@ -162,11 +163,11 @@ public class ProductsController : ControllerBase
 
     [HttpDelete("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
-    public ActionResult<ProductDTO> Delete(int id)
+    public async Task<ActionResult<ProductDTO>> Delete(int id)
     {
         if (id <= 0) return BadRequest("");
 
-        var product = _unitOfWork.ProductRepository.Get(p => p.Id == id);
+        var product = await _unitOfWork.ProductRepository.GetAsync(p => p.Id == id);
 
         if (product is null)
         {
@@ -174,7 +175,7 @@ public class ProductsController : ControllerBase
         }
 
         var deletedProduct = _unitOfWork.ProductRepository.Delete(product);
-        _unitOfWork.Commit();
+        await _unitOfWork.CommitAsync();
 
         var deletedProductDTO = _mapper.Map<ProductDTO>(product);
 

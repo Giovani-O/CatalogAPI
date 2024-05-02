@@ -1,6 +1,7 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Models;
 using CatalogAPI.Pagination;
+using X.PagedList;
 
 namespace CatalogAPI.Repositories
 {
@@ -21,21 +22,21 @@ namespace CatalogAPI.Repositories
         //        .Take(productsParameters.PageSize).ToList();
         //}
 
-        public PagedList<Product> GetProducts(ProductsParameters productsParameters)
+        public async Task<IPagedList<Product>> GetProductsAsync(ProductsParameters productsParameters)
         {
-            var products =  GetAll().OrderBy(p => p.Id).AsQueryable();
-            var orderedProducts = PagedList<Product>.ToPagedList(
-                products, 
-                productsParameters.PageNumber, 
+            var products = await GetAllAsync();
+            var orderedProducts = products.OrderBy(p => p.Id).AsQueryable();
+            var result = await orderedProducts.ToPagedListAsync(
+                productsParameters.PageNumber,
                 productsParameters.PageSize
             );
 
-            return orderedProducts;
+            return result;
         }
 
-        public PagedList<Product> GetProductsFilteredByPrice(ProductsPriceFilter productsPriceFilter)
+        public async Task<IPagedList<Product>> GetProductsFilteredByPriceAsync(ProductsPriceFilter productsPriceFilter)
         {
-            var products = GetAll().AsQueryable();
+            var products = await GetAllAsync();
 
             if (productsPriceFilter.Price.HasValue && !string.IsNullOrEmpty(productsPriceFilter.PriceCondition))
             {
@@ -47,8 +48,7 @@ namespace CatalogAPI.Repositories
                     products = products.Where(p => p.Price == productsPriceFilter.Price.Value).OrderBy(p => p.Price);
             }
 
-            var fiteredProducts = PagedList<Product>.ToPagedList(
-                products, 
+            var fiteredProducts = await products.ToPagedListAsync(
                 productsPriceFilter.PageNumber, 
                 productsPriceFilter.PageSize
             );
@@ -56,9 +56,12 @@ namespace CatalogAPI.Repositories
             return fiteredProducts;
         }
 
-        public IEnumerable<Product> GetProductsByCategory(int id)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int id)
         {
-            return GetAll().Where(c => c.CategoryId == id);
+            var products = await GetAllAsync();
+            var productsCategory = products.Where(c => c.CategoryId == id);
+
+            return productsCategory;
         }
 
     }
