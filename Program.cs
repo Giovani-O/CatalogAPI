@@ -4,6 +4,7 @@ using CatalogAPI.Filters;
 using CatalogAPI.Logging;
 using CatalogAPI.Models;
 using CatalogAPI.Repositories;
+using CatalogAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -79,6 +80,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Gene
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
 builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Never forget to register the repository -_-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Register unit of work
+builder.Services.AddScoped<ITokenService, TokenService>(); // Register token service
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
 {
