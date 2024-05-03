@@ -4,6 +4,8 @@ using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Pagination;
 using CatalogAPI.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -75,6 +77,7 @@ public class ProductsController : ControllerBase
         return GetProducts(products);
     }
 
+    [Authorize]
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()

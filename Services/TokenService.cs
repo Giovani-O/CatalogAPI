@@ -28,7 +28,7 @@ namespace CatalogAPI.Services
                 Expires = DateTime.UtcNow.AddMinutes(_config.GetSection("JWT")
                     .GetValue<double>("TokenValidityInMinutes")),
                 Audience = _config.GetSection("JWT").GetValue<string>("ValidAudience"),
-                Issuer = _config.GetSection("JWR").GetValue<string>("ValidIssuer"),
+                Issuer = _config.GetSection("JWT").GetValue<string>("ValidIssuer"),
                 SigningCredentials = signingCredentials
             };
 
