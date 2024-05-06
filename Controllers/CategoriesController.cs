@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using X.PagedList;
 
@@ -16,6 +17,7 @@ namespace CatalogAPI.Controllers;
 [EnableCors("OriginsWithGrantedAccess")]
 [ApiController]
 [Route("[controller]")]
+[EnableRateLimiting("fixedwindow")] // define limitador de taxa
 public class CategoriesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -55,11 +57,15 @@ public class CategoriesController : ControllerBase
     //[Authorize]
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [DisableRateLimiting]
     public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
     {
         // Queries are usually tracked in the context, this can disrupt performance
         // To prevent that disruption, we can use AsNoTracking() on read only queries.
         var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+
+        if (categories is null)
+            return NotFound();
 
         // Mapper
         var categoriesDto = categories.ToCategoryDTOList();

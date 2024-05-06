@@ -7,6 +7,7 @@ using CatalogAPI.Repositories;
 using CatalogAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -134,11 +135,21 @@ builder.Services.AddAuthorization(options =>
             || context.User.IsInRole("SuperAdmin")));
 });
 
+builder.Services.AddRateLimiter(ratelimiteroptions =>
+{
+    ratelimiteroptions.AddFixedWindowLimiter(policyName: "fixedwindow", options =>
+    {
+        options.PermitLimit = 1;
+        options.Window = TimeSpan.FromSeconds(5);
+        options.QueueLimit = 2;
+        options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    });
+    ratelimiteroptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 // ///////////////////////////////////////////////////////////////////////////////////
 
-
 builder.Services.AddScoped<ApiLoggingFilter>(); // Registering the filter service
-
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Registering the Category repository service
 builder.Services.AddScoped<IProductRepository, ProductRepository>(); // Never forget to register the repository -_-
@@ -165,6 +176,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRateLimiter();
 
 app.UseCors();
 
