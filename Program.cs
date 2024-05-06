@@ -27,17 +27,14 @@ builder.Services.AddControllers(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 }).AddNewtonsoftJson();
 
-var OriginsWithGrantedAccess = "_originsWithGrantedAccess";
-
 // CORS Settings
 builder.Services.AddCors(options =>
-    options.AddPolicy(OriginsWithGrantedAccess,
+    options.AddPolicy("OriginsWithGrantedAccess",
         policy =>
         {
-            policy.WithOrigins("http://apirequest.io")
+            policy.WithOrigins("http://localhost:xxxx")
                   .WithMethods("GET", "POST")
-                  .AllowAnyHeader()
-                  .AllowCredentials();
+                  .AllowAnyHeader();
         })
 );
 
@@ -169,7 +166,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(OriginsWithGrantedAccess);
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

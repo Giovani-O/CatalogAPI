@@ -6,12 +6,14 @@ using CatalogAPI.Pagination;
 using CatalogAPI.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using X.PagedList;
 
 namespace CatalogAPI.Controllers;
 
+[EnableCors("OriginsWithGrantedAccess")]
 [ApiController]
 [Route("[controller]")]
 public class CategoriesController : ControllerBase
@@ -50,8 +52,8 @@ public class CategoriesController : ControllerBase
     //  return _context.Categories.Include(p => p.Products).ToList();
     //}
 
+    //[Authorize]
     [HttpGet]
-    [Authorize]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
     {
@@ -100,6 +102,7 @@ public class CategoriesController : ControllerBase
         return GetCategories(filteredCategories);
     }
 
+    [DisableCors]
     [HttpGet("{id:int}", Name = "GetCategory")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<CategoryDTO>> Get(int id)
