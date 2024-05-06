@@ -104,6 +104,25 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Policies
+builder.Services.AddAuthorization(options =>
+{
+    // adds policy
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    // Only a specific user will be super admin
+    options.AddPolicy("SuperAdminOnly", policy =>
+        policy.RequireRole("Admin").RequireClaim("id", "Gio"));
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusivePolicy", policy =>
+        policy.RequireAssertion(context =>
+        context.User.HasClaim(claim =>
+            claim.Type == "id" && claim.Value == "Gio")
+            || context.User.IsInRole("SuperAdmin")));
+});
+
 // ///////////////////////////////////////////////////////////////////////////////////
 
 

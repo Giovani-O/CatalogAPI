@@ -77,7 +77,7 @@ public class ProductsController : ControllerBase
         return GetProducts(products);
     }
 
-    [Authorize]
+    [Authorize(Policy = "UserOnly")]
     [HttpGet]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
@@ -165,6 +165,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = "AdminOnly")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<ProductDTO>> Delete(int id)
     {

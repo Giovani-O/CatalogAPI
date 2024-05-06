@@ -37,6 +37,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "SuperAdminOnly")]
         [Route("CreateRole")]
         public async Task<ActionResult> CreateRole(string roleName) 
         {
@@ -79,6 +80,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "SuperAdminOnly")]
         [Route("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
@@ -131,7 +133,9 @@ namespace CatalogAPI.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName!),
                     new Claim(ClaimTypes.Email, user.Email!),
+                    new Claim("id", user.UserName!),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Generates a GUID for the token
+
                 };
 
                 // Adds claims to token
@@ -260,7 +264,7 @@ namespace CatalogAPI.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Policy = "ExclusiveOnly")]
         [HttpPost]
         [Route("revoke/{username}")]
         public async Task<IActionResult> Revoke(string username)

@@ -168,6 +168,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = "AdminOnly")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<CategoryDTO>> Delete(int id)
     {
