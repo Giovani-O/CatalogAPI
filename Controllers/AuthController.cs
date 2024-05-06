@@ -20,18 +20,62 @@ namespace CatalogAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             ITokenService tokenService,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration
-        ) 
-        { 
+            IConfiguration configuration,
+            ILogger<AuthController> logger)
+        {
             _tokenService = tokenService;
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _logger = logger;
+        }
+
+        [HttpPost]
+        [Route("CreateRole")]
+        public async Task<ActionResult> CreateRole(string roleName) 
+        {
+            // Verifica se o role já existe
+            var roleAlreadyExists = await _roleManager.RoleExistsAsync(roleName);
+
+            if (!roleAlreadyExists) 
+            {
+                // Cria nova role
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+                // Verifica se o role foi criado com sucesso e faz log
+                if (roleResult.Succeeded)
+                {
+                    _logger.LogInformation(1, "Roles Added");
+                    return StatusCode(StatusCodes.Status200OK,
+                        new Response { 
+                            Status = "Success", 
+                            Message = $"Role {roleName} added successfully"
+                        });
+                }
+                else 
+                {
+                    _logger.LogInformation(2, "Error");
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                        new Response
+                        {
+                            Status = "Error",
+                            Message = $"We had an issue adding the {roleName} role"
+                        });
+                }
+            }
+
+            return StatusCode(StatusCodes.Status400BadRequest,
+                new Response
+                {
+                    Status = "Error",
+                    Message = $"We had an issue adding the {roleName} role"
+                });
         }
 
         [HttpPost]
