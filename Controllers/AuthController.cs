@@ -79,6 +79,43 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            // Busca o usuário
+            var user = await _userManager.FindByEmailAsync(email);
+
+            // Verifica se usuário existe
+            if (user != null)
+            {
+                // Adiciona role ao usuário
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+                
+                if (result.Succeeded) 
+                {
+                    _logger.LogInformation(1, $"User {user.Email} added to the {roleName} role");
+                    return StatusCode(StatusCodes.Status200OK,
+                        new Response
+                        {
+                            Status = "Success",
+                            Message = $"User {user.Email} added to the {roleName} role"
+                        });
+                }
+                else
+                {
+                    _logger.LogInformation(1, $"User {user.Email} could not be added to the {roleName} role");
+                    return StatusCode(StatusCodes.Status400BadRequest,
+                        new Response
+                        {
+                            Status = "Error",
+                            Message = $"User {user.Email} could not be added to the {roleName} role"
+                        });
+                }
+            }
+            return BadRequest(new { error = "Unable to find user" });
+        }
+
+        [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO model)
         {
