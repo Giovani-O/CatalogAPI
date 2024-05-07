@@ -17,7 +17,7 @@ namespace CatalogAPI.Controllers;
 [EnableCors("OriginsWithGrantedAccess")]
 [ApiController]
 [Route("[controller]")]
-//[EnableRateLimiting("fixedwindow")] // define limitador de taxa
+[EnableRateLimiting("fixedwindow")] // define limitador de taxa
 public class CategoriesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;

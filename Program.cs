@@ -3,6 +3,7 @@ using CatalogAPI.DTOs.Mappings;
 using CatalogAPI.Filters;
 using CatalogAPI.Logging;
 using CatalogAPI.Models;
+using CatalogAPI.RateLimitOptions;
 using CatalogAPI.Repositories;
 using CatalogAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -136,13 +137,17 @@ builder.Services.AddAuthorization(options =>
             || context.User.IsInRole("SuperAdmin")));
 });
 
+var rateLimitOptions = new MyRateLimitOptions();
+
+builder.Configuration.GetSection(MyRateLimitOptions.RateLimit).Bind(rateLimitOptions);
+
 builder.Services.AddRateLimiter(ratelimiteroptions =>
 {
     ratelimiteroptions.AddFixedWindowLimiter(policyName: "fixedwindow", options =>
     {
-        options.PermitLimit = 1;
-        options.Window = TimeSpan.FromSeconds(5);
-        options.QueueLimit = 2;
+        options.PermitLimit = rateLimitOptions.PermitLimit; // 1;
+        options.Window = TimeSpan.FromSeconds(rateLimitOptions.Window);
+        options.QueueLimit = rateLimitOptions.QueueLimit;
         options.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
     });
     ratelimiteroptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
