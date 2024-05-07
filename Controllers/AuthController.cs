@@ -118,6 +118,12 @@ namespace CatalogAPI.Controllers
             return BadRequest(new { error = "Unable to find user" });
         }
 
+        /// <summary>
+        /// Verifica credenciais de usuário
+        /// </summary>
+        /// <param name="model">Objeto do tipo LoginModelDTO</param>
+        /// <returns>Status code 200 e token</returns>
+        /// <remarks>Retorna status code 200 e token de autenticação</remarks>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO model)
@@ -179,6 +185,12 @@ namespace CatalogAPI.Controllers
             return Unauthorized();
         }
 
+        /// <summary>
+        /// Registra um novo usuário
+        /// </summary>
+        /// <param name="model">Objeto do tipo RegisterModelDTO</param>
+        /// <returns>Status code 200</returns>
+        /// <remarks>Retorna status code 200</remarks>
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModelDTO model)

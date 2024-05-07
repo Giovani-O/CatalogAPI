@@ -78,9 +78,13 @@ public class ProductsController : ControllerBase
         return GetProducts(products);
     }
 
+    // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    /// <summary>
+    /// Exibe todos os produtos
+    /// </summary>
+    /// <returns>Retorna uma lista de objetos Product</returns>
     [Authorize(Policy = "UserOnly")]
     [HttpGet]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
     {
         var products = await _unitOfWork.ProductRepository.GetAllAsync();
@@ -93,8 +97,13 @@ public class ProductsController : ControllerBase
         return Ok(productsDTO);
     }
 
+    // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    /// <summary>
+    /// Obtém um produto pelo Id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>O produto buscado</returns>
     [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<ProductDTO>> Get(int id)
     {
         var product = await _unitOfWork.ProductRepository.GetAsync(p => p.Id == id);

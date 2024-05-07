@@ -56,8 +56,12 @@ public class CategoriesController : ControllerBase
     //}
 
     //[Authorize]
+    //[ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    /// <summary>
+    /// Obtem uma lista de categorias
+    /// </summary>
+    /// <returns>Uma lista de objetos categoria</returns>
     [HttpGet]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     [DisableRateLimiting]
     public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
     {
@@ -109,9 +113,14 @@ public class CategoriesController : ControllerBase
         return GetCategories(filteredCategories);
     }
 
+    // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    /// <summary>
+    /// Obtem uma categoria pelo Id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>Uma categoria</returns>
     [DisableCors]
     [HttpGet("{id:int}", Name = "GetCategory")]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<CategoryDTO>> Get(int id)
     {
         var category = await _unitOfWork.CategoryRepository.GetAsync(c => c.Id == id);
@@ -130,8 +139,22 @@ public class CategoriesController : ControllerBase
         return Ok(categoryDto);
     }
 
+    // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    /// <summary>
+    /// Cria uma categoria
+    /// </summary>
+    /// <param name="categoryDto"></param>
+    /// <returns>A categoria criada</returns>
+    /// <remarks>
+    /// Exemplo de request
+    /// 
+    /// POST api/categories
+    /// {
+    ///     "name": "categoryName",
+    ///     "imageUrl": "https://images.com/image1.png"
+    /// }
+    /// </remarks>
     [HttpPost]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<CategoryDTO>> Post(CategoryDTO categoryDto)
     {
         if (categoryDto is null)
