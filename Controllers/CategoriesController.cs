@@ -18,6 +18,7 @@ namespace CatalogAPI.Controllers;
 [ApiController]
 [Route("[controller]")]
 [EnableRateLimiting("fixedwindow")] // define limitador de taxa
+//[ApiExplorerSettings(IgnoreApi = true)]
 public class CategoriesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;

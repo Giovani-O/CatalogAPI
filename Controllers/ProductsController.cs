@@ -15,6 +15,7 @@ namespace CatalogAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+//[ApiExplorerSettings(IgnoreApi = true)]
 public class ProductsController : ControllerBase
 {
     //private readonly IRepository<Product> _repository;

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using CatalogAPI.Context;
 using CatalogAPI.DTOs.Mappings;
 using CatalogAPI.Filters;
@@ -168,6 +169,22 @@ builder.Services.AddRateLimiter(options =>
                                 QueueLimit = 0,
                                 Window = TimeSpan.FromSeconds(10)
                             }));
+});
+
+// API Version Settings
+builder.Services.AddApiVersioning(o =>
+{
+    o.DefaultApiVersion = new ApiVersion(1, 0); // Default version
+    o.AssumeDefaultVersionWhenUnspecified = true; // If unspecified, use default
+    o.ReportApiVersions = true;
+    o.ApiVersionReader = ApiVersionReader.Combine( // Versioning types used
+        new QueryStringApiVersionReader(),
+        new UrlSegmentApiVersionReader());
+}).AddApiExplorer(options =>
+{
+    // Swagger configs
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;   
 });
 
 // ///////////////////////////////////////////////////////////////////////////////////
