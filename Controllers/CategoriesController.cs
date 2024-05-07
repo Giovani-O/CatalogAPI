@@ -18,6 +18,7 @@ namespace CatalogAPI.Controllers;
 [ApiController]
 [Route("[controller]")]
 [EnableRateLimiting("fixedwindow")] // define limitador de taxa
+[Produces("application/json")]
 //[ApiExplorerSettings(IgnoreApi = true)]
 public class CategoriesController : ControllerBase
 {
@@ -121,6 +122,8 @@ public class CategoriesController : ControllerBase
     /// <returns>Uma categoria</returns>
     [DisableCors]
     [HttpGet("{id:int}", Name = "GetCategory")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CategoryDTO>> Get(int id)
     {
         var category = await _unitOfWork.CategoryRepository.GetAsync(c => c.Id == id);
