@@ -90,17 +90,26 @@ public class ProductsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesDefaultResponseType]
     public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
     {
-        var products = await _unitOfWork.ProductRepository.GetAllAsync();
+        try
+        {
+            var products = await _unitOfWork.ProductRepository.GetAllAsync();
 
-        if (products is null) return NotFound();
+            if (products is null) return NotFound();
 
-        // Mapping to IEnumerable<ProductDTO>
-        var productsDTO = _mapper.Map<IEnumerable<ProductDTO>>(products);
+            // Mapping to IEnumerable<ProductDTO>
+            var productsDTO = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
-        return Ok(productsDTO);
+            return Ok(productsDTO);
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+        
     }
 
     // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
