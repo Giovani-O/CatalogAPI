@@ -110,8 +110,11 @@ public class ProductsController : ControllerBase
     /// <param name="id"></param>
     /// <returns>O produto buscado</returns>
     [HttpGet("{id:int:min(1)}", Name = "GetProduct")]
-    public async Task<ActionResult<ProductDTO>> Get(int id)
+    public async Task<ActionResult<ProductDTO>> Get(int? id)
     {
+        if (id == null || id <= 0)
+            return BadRequest("Id inválido");
+
         var product = await _unitOfWork.ProductRepository.GetAsync(p => p.Id == id);
 
         if (product is null) return NotFound("Produto não encontrado");
