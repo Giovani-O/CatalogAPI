@@ -19,6 +19,7 @@ namespace CatalogAPI.Controllers;
 [Route("[controller]")]
 [EnableRateLimiting("fixedwindow")] // define limitador de taxa
 [Produces("application/json")]
+[ApiConventionType(typeof(DefaultApiConventions))]
 //[ApiExplorerSettings(IgnoreApi = true)]
 public class CategoriesController : ControllerBase
 {
@@ -181,8 +182,10 @@ public class CategoriesController : ControllerBase
         );
     }
 
+    // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     [HttpPut("{id:int}")]
-    [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))] // Documentação com convenções padrão
+
     public async Task<ActionResult<CategoryDTO>> Put(int id, CategoryDTO categoryDto)
     {
         if (categoryDto is null || id != categoryDto.Id)
