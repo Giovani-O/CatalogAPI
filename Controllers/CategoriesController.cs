@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using X.PagedList;
+using Microsoft.AspNetCore.Http;
 
 namespace CatalogAPI.Controllers;
 
@@ -65,6 +66,9 @@ public class CategoriesController : ControllerBase
     /// <returns>Uma lista de objetos categoria</returns>
     [HttpGet]
     [DisableRateLimiting]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<IEnumerable<CategoryDTO>>> Get()
     {
         // Queries are usually tracked in the context, this can disrupt performance
@@ -125,6 +129,8 @@ public class CategoriesController : ControllerBase
     [HttpGet("{id:int}", Name = "GetCategory")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<CategoryDTO>> Get(int id)
     {
         var category = await _unitOfWork.CategoryRepository.GetAsync(c => c.Id == id);
@@ -184,8 +190,9 @@ public class CategoriesController : ControllerBase
 
     // [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     [HttpPut("{id:int}")]
-    [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))] // Documentação com convenções padrão
-
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<CategoryDTO>> Put(int id, CategoryDTO categoryDto)
     {
         if (categoryDto is null || id != categoryDto.Id)

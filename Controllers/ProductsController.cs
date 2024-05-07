@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using X.PagedList;
+using Microsoft.AspNetCore.Http;
 
 namespace CatalogAPI.Controllers;
 
@@ -87,6 +88,9 @@ public class ProductsController : ControllerBase
     /// <returns>Retorna uma lista de objetos Product</returns>
     [Authorize(Policy = "UserOnly")]
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
     {
         var products = await _unitOfWork.ProductRepository.GetAllAsync();
@@ -136,6 +140,10 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPatch("{id}/PartialUpdate")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<ProductDTOUpdateResponse>> Patch(int id, JsonPatchDocument<ProductDTOUpdateRequest> patchProductDTO)
     {
         if (patchProductDTO is null || id <= 0) 
@@ -161,6 +169,8 @@ public class ProductsController : ControllerBase
 
     [HttpPut("{id:int}")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<ProductDTO>> Put(int id, ProductDTO productDto)
     {
         if (productDto is null)

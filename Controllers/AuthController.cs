@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
+using Microsoft.AspNetCore.Http;
 
 namespace CatalogAPI.Controllers
 {
@@ -42,6 +43,9 @@ namespace CatalogAPI.Controllers
         [HttpPost]
         [Authorize(Policy = "SuperAdminOnly")]
         [Route("CreateRole")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<ActionResult> CreateRole(string roleName) 
         {
             // Verifica se o role já existe
@@ -85,6 +89,9 @@ namespace CatalogAPI.Controllers
         [HttpPost]
         [Authorize(Policy = "SuperAdminOnly")]
         [Route("AddUserToRole")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
             // Busca o usuário
@@ -128,6 +135,9 @@ namespace CatalogAPI.Controllers
         /// <remarks>Retorna status code 200 e token de autenticação</remarks>
         [HttpPost]
         [Route("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName!);
@@ -195,6 +205,9 @@ namespace CatalogAPI.Controllers
         /// <remarks>Retorna status code 200</remarks>
         [HttpPost]
         [Route("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> Register([FromBody] RegisterModelDTO model)
         {
             // Check if user exists
@@ -229,6 +242,7 @@ namespace CatalogAPI.Controllers
 
         [HttpPost]
         [Route("refresh-token")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModel)
         {
             // Checks if tokenModel is null
@@ -282,6 +296,9 @@ namespace CatalogAPI.Controllers
         [Authorize(Policy = "ExclusiveOnly")]
         [HttpPost]
         [Route("revoke/{username}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> Revoke(string username)
         {
             // Find user
