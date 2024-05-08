@@ -137,7 +137,7 @@ public class ProductsController : ControllerBase
     //[ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<ProductDTO>> Post(ProductDTO productDto)
     {
-        if (productDto is null) return BadRequest("");
+        if (productDto is null) return BadRequest();
 
         var product = _mapper.Map<Product>(productDto);
 
@@ -185,8 +185,8 @@ public class ProductsController : ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult<ProductDTO>> Put(int id, ProductDTO productDto)
     {
-        if (productDto is null)
-            throw new InvalidOperationException("Produto é null");
+        if (productDto is null || id != productDto.Id)
+            return BadRequest();
 
         var product = _mapper.Map<Product>(productDto);
 
@@ -203,7 +203,7 @@ public class ProductsController : ControllerBase
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<ProductDTO>> Delete(int id)
     {
-        if (id <= 0) return BadRequest("");
+        if (id <= 0) return BadRequest();
 
         var product = await _unitOfWork.ProductRepository.GetAsync(p => p.Id == id);
 
