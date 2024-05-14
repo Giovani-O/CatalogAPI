@@ -228,18 +228,21 @@ builder.Services.AddAutoMapper(typeof(ProductDTOMappingProfile));
 // Create the application
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // Configure the HTTP request pipeline.
 // Middleware setup
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    //app.UseSwaggerUI();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatalogAPI");
-    });
-    app.ConfigureExceptionHandler(); // Custom middleware
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    //app.UseSwaggerUI();
+//    app.UseSwaggerUI(c =>
+//    {
+//        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatalogAPI");
+//    });
+//    app.ConfigureExceptionHandler(); // Custom middleware
+//}
 
 app.UseHttpsRedirection();
 
