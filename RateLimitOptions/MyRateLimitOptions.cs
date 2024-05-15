@@ -5,7 +5,7 @@
         public const string RateLimit = "RateLimit";
 
         public int PermitLimit { get; set; } = 5;
-        public int Window { get; set; } = 10;
+        public int Window { get; set; } = 1;
         public int ReplenishmentPeriod { get; set; } = 2;
         public int QueueLimit { get; set; } = 2;
         public int SegmentsPerWindow { get; set; } = 8;
