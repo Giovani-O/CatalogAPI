@@ -4,14 +4,11 @@ using CatalogAPI.Filters;
 using CatalogAPI.Models;
 using CatalogAPI.Pagination;
 using CatalogAPI.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using X.PagedList;
-using Microsoft.AspNetCore.Http;
 
 namespace CatalogAPI.Controllers;
 
@@ -214,7 +211,6 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "AdminOnly")]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<CategoryDTO>> Delete(int id)
     {
@@ -230,7 +226,7 @@ public class CategoriesController : ControllerBase
         await _unitOfWork.CommitAsync();
 
         // Mapper
-        var deletedCategoryDto =deletedCategory.ToCategoryDTO();
+        var deletedCategoryDto = deletedCategory.ToCategoryDTO();
 
         return Ok(deletedCategoryDto);
     }

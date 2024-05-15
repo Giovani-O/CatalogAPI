@@ -86,7 +86,7 @@ public class ProductsController : ControllerBase
     /// Exibe todos os produtos
     /// </summary>
     /// <returns>Retorna uma lista de objetos Product</returns>
-    [Authorize(Policy = "UserOnly")]
+    [Authorize]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -199,7 +199,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize]
     [ServiceFilter(typeof(ApiLoggingFilter))] // Using the filter
     public async Task<ActionResult<ProductDTO>> Delete(int id)
     {
