@@ -33,15 +33,22 @@ builder.Services.AddControllers(options =>
 }).AddNewtonsoftJson();
 
 // CORS Settings
+//builder.Services.AddCors(options =>
+//    options.AddPolicy("OriginsWithGrantedAccess",
+//        policy =>
+//        {
+//            policy.WithOrigins("https://localhost:7066")
+//                  .WithMethods("GET", "POST")
+//                  .AllowAnyHeader();
+//        })
+//);
 builder.Services.AddCors(options =>
-    options.AddPolicy("OriginsWithGrantedAccess",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7066")
-                  .WithMethods("GET", "POST")
-                  .AllowAnyHeader();
-        })
-);
+{
+    options.AddPolicy("EnableCORS", builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().Build();
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -248,7 +255,7 @@ app.UseHttpsRedirection();
 
 app.UseRateLimiter();
 
-app.UseCors();
+app.UseCors("EnableCORS");
 
 app.UseAuthentication();
 app.UseAuthorization();
